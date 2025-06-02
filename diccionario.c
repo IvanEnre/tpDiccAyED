@@ -1,0 +1,137 @@
+#include "diccionario.h"
+
+int crear_dicc(tDiccionario* dicc, size_t cantMaxDicc, FunHash funcHashing)
+{
+    int i;
+    
+    dicc->tablaHash = malloc(cantMaxDicc * sizeof(tNodo*));
+    if(dicc->tablaHash == NULL)
+        return FALSO;
+    
+    for(i = 0; i < cantMaxDicc; i++)
+    {
+        dicc->tablaHash[i] = NULL;
+    }
+    
+    dicc->funcHashing = funcHashing;
+    dicc->tamMax = cantMaxDicc;
+    dicc->ce = 0;
+
+    return VERDADERO;
+}
+
+int poner_dic(tDiccionario* dicc, void* data, size_t tamData)
+{
+    size_t index = dicc->funcHashing(data, dicc->tamMax);
+
+    //si es lista vacia => no hay colision
+    if(dicc->tablaHash[index] == NULL)
+        dicc->ce++;
+
+    //insercion al inicio de la lista
+    tNodo** pl = &dicc->tablaHash[index];
+    tNodo* nodo;
+
+    nodo = malloc(sizeof(tNodo));
+
+    if(nodo == NULL)
+        return FALSO;
+
+    nodo->data = malloc(tamData);
+
+    if(nodo->data == NULL)
+    {
+        free(nodo);
+        return FALSO;
+    }
+
+    memcpy(nodo->data, data, tamData);
+    nodo->tamData = tamData;
+
+    nodo->sig = *pl;
+    *pl = nodo;
+
+    return VERDADERO;
+}
+
+void* obtener_dic(tDiccionario* dicc, void* data, size_t tamData, Cmp comp)
+{
+    size_t index =dicc->funcHashing(data, dicc->tamMax);
+    
+    tNodo** pl = &dicc->tablaHash[index];
+
+    while (*pl && comp(data, (*pl)->data) != 0)
+    {
+        pl = &(*pl)->sig;
+    }
+
+    //devolver el ptr a data en lista (duda)
+    //en lugar de una copia
+    if(!*pl)
+        return NULL;   // NULL
+    
+    //memcpy(data, (*pl)->data, MIN(tamData, (*pl)->tamData)); // comentarlo
+
+    return (*pl)->data;   //(*pl)->data
+}
+
+int sacar_dic(tDiccionario* dicc, void* data, size_t tamData, Cmp comp)
+{
+    size_t index = dicc->funcHashing(data, dicc->tamMax);
+
+    tNodo* nodo;
+    tNodo** pl = &dicc->tablaHash[index];
+
+    while (*pl && comp(data, (*pl)->data) != 0)
+    {
+        pl = &(*pl)->sig;
+    }
+
+    if(*pl == NULL)
+        return FALSO;
+    
+    nodo = *pl;
+    *pl = nodo->sig;
+    memcpy(data, (*pl)->data, MIN(tamData, (*pl)->tamData));
+    free(nodo->data);
+    free(nodo);
+
+    if(dicc->tablaHash[index] == NULL)
+        dicc->ce--;
+
+    return VERDADERO;
+}
+
+void recorrer_dic(tDiccionario* dicc, void* dataTransf, Accion funcAccion)
+{
+    tNodo** pl;
+    for (size_t i = 0; i < dicc->tamMax; i++)
+    {
+        pl = &dicc->tablaHash[i];
+        while(*pl)
+        {
+            funcAccion((*pl)->data, dataTransf);
+            pl = &(*pl)->sig;
+        }
+    }
+}
+
+void vaciar_dic(tDiccionario* dicc)
+{
+    tNodo** pl;
+    tNodo* nodo;
+    for (size_t i = 0; i < dicc->ce; i++)
+    {
+        pl = &dicc->tablaHash[i];
+        while(*pl)
+        {
+            nodo = *pl;
+            *pl = nodo->sig;
+
+            free(nodo->data);
+            free(nodo);
+        }
+    }
+    
+    free(dicc->tablaHash);
+}
