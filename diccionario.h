@@ -18,7 +18,8 @@ typedef struct sNodo
 }tNodo;
 
 //typedef tNodo* tLista;
-
+//comentario de prueba para los efectos en github desde
+//desde la maquina local
 typedef struct sBucket
 {
     //tLista lista[N], un vector que apunta
