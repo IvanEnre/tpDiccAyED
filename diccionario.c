@@ -20,7 +20,7 @@ int crear_dicc(tDiccionario* dicc, size_t cantMaxDicc, FunHash funcHashing)
     return VERDADERO;
 }
 
-int poner_dic(tDiccionario* dicc, void* data, size_t tamData)
+int poner_dic(tDiccionario* dicc, const void* data, size_t tamData, Cmp cmp, AccDupl procesarDupl)
 {
     size_t index = dicc->funcHashing(data, dicc->tamMax);
 
@@ -28,21 +28,35 @@ int poner_dic(tDiccionario* dicc, void* data, size_t tamData)
     if(dicc->tablaHash[index] == NULL)
         dicc->ce++;
 
-    //insercion al inicio de la lista
+    // insercion al inicio de la lista(X)
+    // insercion de forma ordenada
     tNodo** pl = &dicc->tablaHash[index];
     tNodo* nodo;
+    
+    // no se permitira duplicados
+    // actualilzar en caso de duplicados
+    while (*pl && cmp(data, (*pl)->data) < 0)
+    {
+        pl = &(*pl)->sig;
+    }
 
+    if(*pl && cmp(data, (*pl)->data) == 0)
+    {
+        if(procesarDupl)
+            procesarDupl((*pl)->data, data);
+        
+        return DATA_DUPLICADO;
+    }
+    
     nodo = malloc(sizeof(tNodo));
-
     if(nodo == NULL)
-        return FALSO;
+        return SIN_MEMORIA;
 
     nodo->data = malloc(tamData);
-
     if(nodo->data == NULL)
     {
         free(nodo);
-        return FALSO;
+        return SIN_MEMORIA;
     }
 
     memcpy(nodo->data, data, tamData);
@@ -51,7 +65,7 @@ int poner_dic(tDiccionario* dicc, void* data, size_t tamData)
     nodo->sig = *pl;
     *pl = nodo;
 
-    return VERDADERO;
+    return INSERCION_EXITOSA;
 }
 
 void* obtener_dic(tDiccionario* dicc, void* data, size_t tamData, Cmp comp)
@@ -60,7 +74,7 @@ void* obtener_dic(tDiccionario* dicc, void* data, size_t tamData, Cmp comp)
     
     tNodo** pl = &dicc->tablaHash[index];
 
-    while (*pl && comp(data, (*pl)->data) != 0)
+    while (*pl && comp(data, (*pl)->data) < 0)
     {
         pl = &(*pl)->sig;
     }
@@ -82,7 +96,7 @@ int sacar_dic(tDiccionario* dicc, void* data, size_t tamData, Cmp comp)
     tNodo* nodo;
     tNodo** pl = &dicc->tablaHash[index];
 
-    while (*pl && comp(data, (*pl)->data) != 0)
+    while (*pl && comp(data, (*pl)->data) < 0)
     {
         pl = &(*pl)->sig;
     }

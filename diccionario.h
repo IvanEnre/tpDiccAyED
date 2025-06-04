@@ -3,12 +3,19 @@
 
 #include <stdlib.h>
 #include <string.h>
+
 #define FALSO 0
 #define VERDADERO 1
+#define DATA_DUPLICADO -10
+#define SIN_MEMORIA -20
+#define INSERCION_EXITOSA 0
+
 #define MIN(X, Y) (X) < (Y) ? (X) : (Y)
+
 typedef int (*FunHash)(const void* data, size_t tamMaxDicc);
 typedef int (*Cmp)(const void* d1, const void* d2);
-typedef void (Accion)(void* d1, void* d2);
+typedef void (*Accion)(void* d1, void* d2);
+typedef int (*AccDupl)(void* d1, const void* d2);
 
 typedef struct sNodo
 {
@@ -33,7 +40,7 @@ typedef struct sBucket
 typedef tBucket tDiccionario;
 
 int crear_dicc(tDiccionario* dicc, size_t cantMaxDicc, FunHash funcHashing);
-int poner_dic(tDiccionario* dicc, void* data, size_t tamData);
+int poner_dic(tDiccionario* dicc, const void* data, size_t tamData, Cmp cmp, AccDupl procesarDupl);
 int sacar_dic(tDiccionario* dicc, void* data, size_t tamData, Cmp comp);
 void* obtener_dic(tDiccionario* dicc, void* data, size_t tamData, Cmp comp);
 void recorrer_dic(tDiccionario* dicc, void* dataTransf, Accion funcAccion);
