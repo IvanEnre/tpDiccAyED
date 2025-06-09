@@ -12,10 +12,10 @@
 
 #define MIN(X, Y) (X) < (Y) ? (X) : (Y)
 
-typedef int (*FunHash)(const void* data, size_t tamMaxDicc);
+typedef size_t (*FunHash)(const void* data, size_t capDicc);
 typedef int (*Cmp)(const void* d1, const void* d2);
 typedef void (*Accion)(void* d1, void* d2);
-typedef int (*AccDupl)(void* d1, const void* d2);
+typedef void (*AccDupl)(void* d1, const void* d2);
 
 typedef struct sNodo
 {
@@ -39,7 +39,7 @@ typedef struct sBucket
 
 typedef tBucket tDiccionario;
 
-int crear_dicc(tDiccionario* dicc, size_t cantMaxDicc, FunHash funcHashing);
+int crear_dic(tDiccionario* dicc, size_t cantMaxDicc, FunHash funcHashing);
 int poner_dic(tDiccionario* dicc, const void* data, size_t tamData, Cmp cmp, AccDupl procesarDupl);
 int sacar_dic(tDiccionario* dicc, void* data, size_t tamData, Cmp comp);
 void* obtener_dic(tDiccionario* dicc, void* data, size_t tamData, Cmp comp);

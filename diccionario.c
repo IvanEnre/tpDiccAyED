@@ -1,6 +1,6 @@
 #include "diccionario.h"
 
-int crear_dicc(tDiccionario* dicc, size_t cantMaxDicc, FunHash funcHashing)
+int crear_dic(tDiccionario* dicc, size_t cantMaxDicc, FunHash funcHashing)
 {
     int i;
     
@@ -22,7 +22,7 @@ int crear_dicc(tDiccionario* dicc, size_t cantMaxDicc, FunHash funcHashing)
 
 int poner_dic(tDiccionario* dicc, const void* data, size_t tamData, Cmp cmp, AccDupl procesarDupl)
 {
-    size_t index = dicc->funcHashing(data, dicc->tamMax);
+    size_t index = dicc->funcHashing(data, dicc->tamMax) % dicc->tamMax;
 
     //si es lista vacia => no hay colision
     if(dicc->tablaHash[index] == NULL)
@@ -70,7 +70,7 @@ int poner_dic(tDiccionario* dicc, const void* data, size_t tamData, Cmp cmp, Acc
 
 void* obtener_dic(tDiccionario* dicc, void* data, size_t tamData, Cmp comp)
 {
-    size_t index =dicc->funcHashing(data, dicc->tamMax);
+    size_t index = dicc->funcHashing(data, dicc->tamMax) % dicc->tamMax;
     
     tNodo** pl = &dicc->tablaHash[index];
 
@@ -91,7 +91,7 @@ void* obtener_dic(tDiccionario* dicc, void* data, size_t tamData, Cmp comp)
 
 int sacar_dic(tDiccionario* dicc, void* data, size_t tamData, Cmp comp)
 {
-    size_t index = dicc->funcHashing(data, dicc->tamMax);
+    size_t index = dicc->funcHashing(data, dicc->tamMax) % dicc->tamMax;
 
     tNodo* nodo;
     tNodo** pl = &dicc->tablaHash[index];
@@ -102,11 +102,13 @@ int sacar_dic(tDiccionario* dicc, void* data, size_t tamData, Cmp comp)
     }
 
     if(*pl == NULL)
+    {
         return FALSO;
+    }
     
     nodo = *pl;
     *pl = nodo->sig;
-    memcpy(data, (*pl)->data, MIN(tamData, (*pl)->tamData));
+    memcpy(data, nodo->data, MIN(tamData, nodo->tamData));
     free(nodo->data);
     free(nodo);
 
@@ -134,7 +136,7 @@ void vaciar_dic(tDiccionario* dicc)
 {
     tNodo** pl;
     tNodo* nodo;
-    for (size_t i = 0; i < dicc->ce; i++)
+    for (size_t i = 0; i < dicc->tamMax; i++)
     {
         pl = &dicc->tablaHash[i];
         while(*pl)
