@@ -132,7 +132,7 @@ void recorrer_dic(tDiccionario* dicc, void* dataTransf, Accion funcAccion)
     }
 }
 
-void vaciar_dic(tDiccionario* dicc)
+void vaciar_dic(tDiccionario* dicc, int tipoVaciar)
 {
     tNodo** pl;
     tNodo* nodo;
@@ -149,5 +149,6 @@ void vaciar_dic(tDiccionario* dicc)
         }
     }
     
-    free(dicc->tablaHash);
+    if(tipoVaciar == COMPLETO_DICC)
+        free(dicc->tablaHash);
 }

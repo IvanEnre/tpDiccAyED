@@ -1,52 +1,76 @@
 #include "funciones.h"
+
 int solucion()
 {
-    //int cantPodio = PODIO;
-    int opcion = 1;
-    char nombreArchivo[26] = "archivo-4.txt";
-    tDiccionario diccPalabras;  //{palabra: cantidad}, ...
-    tDiccionario diccSignos;       //{puntuacion: cantidad}, {espacio: cantidad}
-    tDiccionario diccPodio;     //{palabra: ranking}...
-    tDiccionario diccPodioFinal;
+    int opcion;
+    int estado;
+    char nombreArchivo[TAM_NOM_ARCH];
+    tDiccionario diccPalabras; //{palabra: cantidad}, ...
+    tDiccionario diccSignos;   //{puntuacion: cantidad}, {espacio: cantidad}
+    tDiccionario diccPodio;    //{palabra: ranking}...
+
     crear_dic(&diccPalabras, 10, hashingPalabra);
     crear_dic(&diccSignos, 2, hashingSigno);
-    crear_dic(&diccPodio, 10, hashingPalabra);
-    crear_dic(&diccPodioFinal, PODIO, hashingPodioFinal);
-    while (opcion)
+    crear_dic(&diccPodio, PODIO, hashingRank);
+
+    estado = SIN_PROCESAR_ARCHIVO;
+    do
     {
-        //opcion = menu(LISTA_OPCIONES, nombreArchivo);
-        if(opcion == PROC_ARCHIVO && procesarArchivo(nombreArchivo, &diccPalabras, &diccSignos) == EXITO)
+        opcion = menu(OPC_VALIDAS, nombreArchivo);
+
+        switch (opcion)
         {
-            generarPodio(&diccPodio, &diccPalabras, PODIO);
-            
-            printf("Diccionario palabras.\n");
+        case INPUT_NOM_ARCHIVO:
+            if(estado == EXITO)
+            {
+                vaciar_dic(&diccPalabras, 0);
+                vaciar_dic(&diccSignos, 0);
+                vaciar_dic(&diccPodio, 0);
+            }
+            inArchivo(nombreArchivo);
+            printf("\n##Archivo a procesar: %s\n\n", nombreArchivo);;
+            break;
+        case PROC_ARCHIVO:
+            estado = procesarArchivo(nombreArchivo, &diccPalabras, &diccSignos);
+            mensajeEstado(estado, nombreArchivo);
+            break;
+        case INF_DATOS:
+            printf("\n-----DATOS A INFORMAR-----\n\n");
+            if (estado != EXITO)
+            {
+                printf("...\n\n");
+                break;
+            }
+            printf("|Diccionario palabras. |\n");
             generarInforme(&diccPalabras, printDiccPalabras);
-            printf("\nDiccionario de signos.\n");
+            printf("\n|Diccionario de signos.|\n");
             generarInforme(&diccSignos, printDiccSignos);
-            printf("\nDiccionario de ranking de ayuda.\n");
+
+            generarPodio(&diccPalabras, &diccPodio, PODIO);
+            printf("\n|Diccionario de podios.|\n");
             generarInforme(&diccPodio, printDiccPodio);
-
-            recorrer_dic(&diccPodio, &diccPodioFinal, clasificarPodioFinal);
-            printf("\nDiccionario de ranking final.\n");
-            generarInforme(&diccPodioFinal, printDiccPodioFinal);
+            printf("\n\n");
+            break;
+        case SALIR:
+            break;
         }
-        opcion = 0;
-    }
 
-    vaciar_dic(&diccPalabras);
-    vaciar_dic(&diccSignos);
-    vaciar_dic(&diccPodio);
-    vaciar_dic(&diccPodioFinal);
+    } while (opcion != SALIR);
+
+    vaciar_dic(&diccPalabras, COMPLETO_DICC);
+    vaciar_dic(&diccSignos, COMPLETO_DICC);
+    vaciar_dic(&diccPodio, COMPLETO_DICC);
     return 0;
 }
 
-size_t hashingString(const char* s)
+size_t hashingString(const char *s)
 {
     const int p = 31;
     const int m = 1e9 + 9;
     size_t hash_value = 0;
     size_t p_pow = 1;
-    while(*s){
+    while (*s)
+    {
         hash_value = (hash_value + (*s - 'a' + 1) * p_pow) % m;
         p_pow = (p_pow * p) % m;
         s++;
@@ -54,103 +78,101 @@ size_t hashingString(const char* s)
     return hash_value;
 }
 
-size_t hashingPodioFinal(const void* data, size_t capDicc)
+size_t hashingPunto(const void *punto, size_t capDicc)
 {
-    tPodioFinal* p = (tPodioFinal*)data;
-    return p->key - 1;
+    tPunto *p = (tPunto *)punto;
+    return p->keyCant - 1;
 }
 
-size_t hashingRanking(const void* data, size_t capDicc)
+size_t hashingRank(const void *rank, size_t capDicc)
 {
-    tPunto* punto = (tPunto*)data;
-    return punto->keyCant - 1;
+    tRank *r = (tRank *)rank;
+    return r->key - 1;
 }
 
-size_t hashingPalabra(const void* data, size_t capDicc)
+size_t hashingPalabra(const void *data, size_t capDicc)
 {
-    const tPalabra* palabra = (tPalabra*)data;
+    const tPalabra *palabra = (tPalabra *)data;
     return hashingString(palabra->keyPal);
 }
 
-size_t hashingSigno(const void* data, size_t capDicc)
+size_t hashingSigno(const void *data, size_t capDicc)
 {
-    const tSigno* signo = (tSigno*)data;
+    const tSigno *signo = (tSigno *)data;
     return hashingString(signo->keyNom);
 }
 
-void cargarSignos(tDiccionario* diccSignos, char** ptrStr)
+void cargarSignos(tDiccionario *diccSignos, char **ptrStr)
 {
     tSigno sEspacio = {"espacio", 1};
     tSigno sPuntuacion = {"sig-punt", 1};
 
     while (**ptrStr && !ES_LETRA(**ptrStr))
     {
-        if(**ptrStr == ' ')
+        if (**ptrStr == ' ')
             poner_dic(diccSignos, &sEspacio, sizeof(tSigno), cmpSigno, actSignoRepetido);
         else
             poner_dic(diccSignos, &sPuntuacion, sizeof(tSigno), cmpSigno, actSignoRepetido);
-        
+
         (*ptrStr)++;
     }
 }
 
-char* palabraLinea(char** lineaFrase, int* cantCaract)
+char *palabraLinea(char **lineaFrase, int *cantCaract)
 {
-    char* initPal;
+    char *initPal;
 
     initPal = *lineaFrase;
     *cantCaract = 0;
-    while(**lineaFrase && ES_LETRA(**lineaFrase))
+    while (**lineaFrase && ES_LETRA(**lineaFrase))
     {
         **lineaFrase = A_MINUSCULA(**lineaFrase);
         (*cantCaract)++;
         (*lineaFrase)++;
     }
-    
+
     return initPal;
 }
 
-void procesarLineaStr(char* ptrLinea, tDiccionario* diccPals, tDiccionario* diccSignos)
+void procesarLineaStr(char *ptrLinea, tDiccionario *diccPals, tDiccionario *diccSignos)
 {
-    char* ptrPalabraStr;
+    char *ptrPalabraStr;
     int cantCaract;
     tPalabra palabra;
 
     while (*ptrLinea)
     {
         ptrPalabraStr = palabraLinea(&ptrLinea, &cantCaract);
-        if(cantCaract)
+        if (cantCaract)
         {
             strncpy(palabra.keyPal, ptrPalabraStr, cantCaract);
             palabra.keyPal[cantCaract] = '\0';
             palabra.valCant = 1;
             poner_dic(diccPals, &palabra, sizeof(tPalabra), cmpPalabra, actPalabraRepetido);
         }
-        //esta funcion toma los digitos cómo
-        //parte de un signo de puntuacion
+        // esta funcion toma los digitos cómo
+        // parte de un signo de puntuacion
         cargarSignos(diccSignos, &ptrLinea);
 
-        //ptrLinea++;
+        // ptrLinea++;
     }
 }
 
-int procesarArchivo(const char* nombArchTxt, tDiccionario* diccPals, tDiccionario* diccSignos)
+int procesarArchivo(const char *nombArchTxt, tDiccionario *diccPals, tDiccionario *diccSignos)
 {
     /**
-     * verificar que sea valido el nombre archivo
-     * puede ser una funcion separada que valide
      * realizar la lectura del archivo txt
      * cargar los datos en los diccionarios
      */
 
     char lineaBuffer[MAX_BUFF];
-    char* ptrSaltoLinea;
-    FILE* pfTxt;
+    char *ptrSaltoLinea;
+    FILE *pfTxt;
 
     pfTxt = fopen(nombArchTxt, "rt");
-    if(pfTxt == NULL)
+    if (pfTxt == NULL)
         return ERROR_APERTURA_ARCHIVO;
-    
+
     while (fgets(lineaBuffer, MAX_BUFF, pfTxt))
     {
         ptrSaltoLinea = strchr(lineaBuffer, '\n');
@@ -163,105 +185,112 @@ int procesarArchivo(const char* nombArchTxt, tDiccionario* diccPals, tDiccionari
     return EXITO;
 }
 
-void copiarDatosEnDicc(void* dataDicc, void* data)
-{
-    tPalabra* palabra = (tPalabra*)dataDicc;
-    tDiccionario* diccPunto = (tDiccionario*)data;
-    tPunto punto;
-    punto.keyCant = palabra->valCant;
-    punto.valPosi = 1;
-    poner_dic(diccPunto, &punto, sizeof(tPunto), cmpApariciones, NULL);
-}
-
-void clasificarPuntosRank(void* dataDicc, void* data)
-{
-    tPunto* punto = (tPunto*)dataDicc;
-    int* rank = (int*)data;
-    punto->valPosi = (*rank)++;
-}
-
-void generarDiccPodioPalabras(void* dataDicc, void* data)
-{
-    tPalabra* palabra = (tPalabra*)dataDicc;
-    tDiccRank* dRank = (tDiccRank*)data;
-    tPunto punto;
-    tPunto* puntoFind;
-    tPodio podio;
-
-    //buscamos en que puesto ocupa la palabra
-    //segun la cantidad
-    punto.keyCant = palabra->valCant;
-    puntoFind = obtener_dic(dRank->diccPunto, &punto, sizeof(tPunto), cmpApariciones);
-
-
-    strcpy(podio.keyPal, palabra->keyPal);
-    podio.valorRanking = puntoFind->valPosi;
-    if(podio.valorRanking <= PODIO)
-    {
-
-        poner_dic(dRank->diccPodioPal, &podio, sizeof(tPodio), cmpPalabra, NULL);
-    }
-}
-
-void generarPodio(tDiccionario* diccPodio, tDiccionario* diccPals, int cantPodio)
-{
-    /**
-     * 1ero copia ordenada de diccionario palabras
-     *    con sus cantidades
-     *    cómo? produciendo colisiones
-     * 2do iterar el nuevo diccionario e ir
-     * guardando los datos en diccionario podio
-     */
-    tDiccionario diccPunto;
-    tDiccRank diccRank;
-    int rank;
-    crear_dic(&diccPunto, 1, hashingRanking);
-    
-    recorrer_dic(diccPals, &diccPunto, copiarDatosEnDicc);
-    rank = 1;
-    recorrer_dic(&diccPunto, &rank, clasificarPuntosRank);
-
-    printf("\ndicc puntos rank\n");
-    recorrer_dic(&diccPunto, NULL, printDiccPunto);
-
-    diccRank.rank = cantPodio;
-    diccRank.diccPodioPal = diccPodio;
-    diccRank.diccPunto = &diccPunto;
-    recorrer_dic(diccPals, &diccRank, generarDiccPodioPalabras);
-    vaciar_dic(&diccPunto);
-}
-void clasificarPodioFinal(void* dataPodio, void* diccPodioFinal)
-{
-    tPodio* p = (tPodio*)dataPodio;
-    tDiccionario* dfp = (tDiccionario*)diccPodioFinal;
-    tPodioFinal pf;
-    tPodioFinal eliminar;
-    pf.key = p->valorRanking;
-    strcpy(pf.podio.keyPal, p->keyPal);
-    pf.podio.valorRanking = p->valorRanking;
-
-    int est = poner_dic(dfp, &pf, sizeof(tPodioFinal), cmpPodioFinal, NULL);
-    if(est == DATA_DUPLICADO)
-    {
-        eliminar.key = pf.key + 1;
-        if(eliminar.key > 5)
-            eliminar.key--;
-        sacar_dic(dfp, &eliminar, sizeof(tPodioFinal), cmpPodioFinal);
-        pf.key++;
-        if(pf.key > 5)
-            pf.key--;
-        poner_dic(dfp, &pf, sizeof(tPodioFinal), cmpPodioFinal, NULL);
-    }
-}
-
-void generarInforme(tDiccionario* dicc, Accion printDiccionario)
+void generarInforme(tDiccionario *dicc, Accion printDiccionario)
 {
     /**
      * usar la primitiva recorrer_dic
      * junto a la funcion printDiccionario
      */
     int total = 0;
+    tGrupoRank clasificar;
+
+    clasificar.item = 0;
+    clasificar.pos = 1;
+    clasificar.dataPrev = NULL;
+
     printDiccionario(NULL, NULL);
-    recorrer_dic(dicc, &total, printDiccionario);
+    if (printDiccionario != printDiccPodio)
+        recorrer_dic(dicc, &total, printDiccionario);
+    else
+        recorrer_dic(dicc, &clasificar, printDiccionario);
+
+    if (printDiccionario == printDiccPodio)
+        total = clasificar.item + 1;
+
+    printf("+---------------+------+\n");
     printf("|%15s|%6d|\n", "Total", total);
+    printf("+---------------+------+\n");
+}
+
+void generarPodio(tDiccionario *diccPals, tDiccionario *diccPodioPals, int podio)
+{
+    int i;
+    tPunto punto;
+    tGrupoDicc grupDicc;
+    tDiccionario diccPuntos;    //{cantApar: 0}
+    tDiccionario diccPuntoMaxs; //{cantApar: pos}, pos = 1, 2, ..., N
+
+    crear_dic(&diccPuntos, podio, hashingPunto);
+    crear_dic(&diccPuntoMaxs, podio, hashingPunto);
+
+    recorrer_dic(diccPals, &diccPuntos, copiarApariEnDiccPuntos);
+
+    for (i = 0; i < podio; i++)
+    {
+        punto.keyCant = 0;
+        recorrer_dic(&diccPuntos, &punto, obtenerPuntoMax);
+        sacar_dic(&diccPuntos, &punto, sizeof(tPunto), cmpPunto);
+
+        punto.valPosi = i + 1;
+        poner_dic(&diccPuntoMaxs, &punto, sizeof(tPunto), cmpPunto, NULL);
+    }
+    i = 0;
+
+    // printf("\ndicc con los puntos segun clasificacion\n");
+    // recorrer_dic(&diccPuntoMaxs, &i, printDiccPunto);
+    vaciar_dic(&diccPuntos, COMPLETO_DICC);
+
+    grupDicc.diccPuntosMax = &diccPuntoMaxs;
+    grupDicc.diccPodioPals = diccPodioPals;
+    grupDicc.podio = podio;
+
+    recorrer_dic(diccPals, &grupDicc, guardarPalsRankEnDiccPodio);
+    vaciar_dic(&diccPuntoMaxs, COMPLETO_DICC);
+}
+
+void copiarApariEnDiccPuntos(void *palabra, void *diccPunto)
+{
+    tPalabra *pal = (tPalabra *)palabra;
+    tPunto punto;
+
+    punto.keyCant = pal->valCant;
+    punto.valPosi = 0;
+
+    poner_dic(diccPunto, &punto, sizeof(tPunto), cmpPunto, NULL);
+}
+
+void obtenerPuntoMax(void *punto, void *puntoMax)
+{
+    tPunto *p = (tPunto *)punto;
+    tPunto *pmax = (tPunto *)puntoMax;
+
+    if (p->keyCant > pmax->keyCant)
+        pmax->keyCant = p->keyCant;
+}
+
+void guardarPalsRankEnDiccPodio(void *palabra, void *grupDicc)
+{
+    tPalabra *pal = (tPalabra *)palabra;
+    tGrupoDicc *coleccDicc = (tGrupoDicc *)grupDicc;
+    tPunto punto;
+    tPunto *puntoEncontrado;
+    tRank rank;
+
+    // buscamos en que posicion(clasificacion)
+    // de la palabra
+    punto.keyCant = pal->valCant;
+    puntoEncontrado = obtener_dic(coleccDicc->diccPuntosMax, &punto, sizeof(tPunto), cmpPunto);
+
+    if (!puntoEncontrado)
+        return;
+    // contruir el ranking con la palabra
+    rank.key = puntoEncontrado->valPosi;
+    strcpy(rank.valPal.keyPal, pal->keyPal);
+    rank.valPal.valCant = puntoEncontrado->valPosi % coleccDicc->podio;
+    if (rank.valPal.valCant == 0)
+        rank.valPal.valCant = coleccDicc->podio;
+
+    puntoEncontrado->valPosi += coleccDicc->podio;
+
+    poner_dic(coleccDicc->diccPodioPals, &rank, sizeof(tRank), cmpRank, NULL);
 }

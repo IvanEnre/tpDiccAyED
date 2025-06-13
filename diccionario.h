@@ -9,7 +9,7 @@
 #define DATA_DUPLICADO -10
 #define SIN_MEMORIA -20
 #define INSERCION_EXITOSA 0
-
+#define COMPLETO_DICC 1
 #define MIN(X, Y) (X) < (Y) ? (X) : (Y)
 
 typedef size_t (*FunHash)(const void* data, size_t capDicc);
@@ -44,7 +44,7 @@ int poner_dic(tDiccionario* dicc, const void* data, size_t tamData, Cmp cmp, Acc
 int sacar_dic(tDiccionario* dicc, void* data, size_t tamData, Cmp comp);
 void* obtener_dic(tDiccionario* dicc, void* data, size_t tamData, Cmp comp);
 void recorrer_dic(tDiccionario* dicc, void* dataTransf, Accion funcAccion);
-void vaciar_dic(tDiccionario* dicc);
+void vaciar_dic(tDiccionario* dicc, int tipoVaciar);
 
 #endif
 
