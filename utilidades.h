@@ -10,6 +10,7 @@
 #define ES_LETRA(X) (((X)>='A' && (X)<='Z') || ((X)>='a' && (X)<='z'))
 #define MAX_BUFF 100
 #define TAM_NOM_ARCH 15
+#define TAM_PALABRA 25
 #define SIN_PROCESAR_ARCHIVO -15
 #define ERROR_APERTURA_ARCHIVO -10
 #define EXITO 0
@@ -24,13 +25,13 @@
 
 typedef struct
 {
-    char keyPal[16];   //claves: "guaymallen", "oreo", "pizza", "milanesa", ...
+    char keyPal[TAM_PALABRA];   //claves: "guaymallen", "oreo", "pizza", "milanesa", ...
     int valCant;       //value:
 }tPalabra;
 
 typedef struct
 {
-    char keyNom[16];    //claves: "espacio", "sig-punt", ...
+    char keyNom[TAM_PALABRA];    //claves: "espacio", "sig-punt", ...
     int valCant;
 }tSigno;
 
