@@ -70,7 +70,7 @@ int menu(const char *opcValidas, char *inputNombreArchivo)
 void printDiccSignos(void *dataDicc, void *data)
 {
     tSigno *signo = (tSigno *)dataDicc;
-    int *total = (int *)data;
+    tGrupoRank* gr = (tGrupoRank*)data;
     if (dataDicc == NULL)
     {
         printf("+---------------+------+\n");
@@ -81,13 +81,13 @@ void printDiccSignos(void *dataDicc, void *data)
 
     printf("|%-15s|%6d|\n", signo->keyNom, signo->valCant);
     //printf("+---------------+------+\n");
-    *total = *total + signo->valCant;
+    gr->item++;
 }
 
 void printDiccPalabras(void *dataDicc, void *data)
 {
     tPalabra *palabra = (tPalabra *)dataDicc;
-    int *total = (int *)data;
+    tGrupoRank* gr = (tGrupoRank*)data;
     if (dataDicc == NULL)
     {
         printf("+---------------+------+\n");
@@ -98,7 +98,8 @@ void printDiccPalabras(void *dataDicc, void *data)
 
     printf("|%-15s|%6d|\n", palabra->keyPal, palabra->valCant);
     //printf("+---------------+------+\n");
-    *total = *total + palabra->valCant;
+    //*total = *total + palabra->valCant;
+    gr->item++;
 }
 
 void printDiccPodio(void* rank, void* clasificar)
