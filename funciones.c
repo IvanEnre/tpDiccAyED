@@ -191,7 +191,6 @@ void generarInforme(tDiccionario *dicc, Accion printDiccionario)
      * usar la primitiva recorrer_dic
      * junto a la funcion printDiccionario
      */
-    int total = 0;
     tGrupoRank clasificar;
 
     clasificar.item = 0;
@@ -199,16 +198,11 @@ void generarInforme(tDiccionario *dicc, Accion printDiccionario)
     clasificar.dataPrev = NULL;
 
     printDiccionario(NULL, NULL);
-    if (printDiccionario != printDiccPodio)
-        recorrer_dic(dicc, &total, printDiccionario);
-    else
-        recorrer_dic(dicc, &clasificar, printDiccionario);
+    recorrer_dic(dicc, &clasificar, printDiccionario);
 
-    if (printDiccionario == printDiccPodio)
-        total = clasificar.item + 1;
 
     printf("+---------------+------+\n");
-    printf("|%15s|%6d|\n", "Total", total);
+    printf("|%15s|%6d|\n", "Total", clasificar.item);
     printf("+---------------+------+\n");
 }
 
