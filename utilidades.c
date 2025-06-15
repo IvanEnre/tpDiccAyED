@@ -73,13 +73,13 @@ void printDiccSignos(void *dataDicc, void *data)
     tGrupoRank* gr = (tGrupoRank*)data;
     if (dataDicc == NULL)
     {
-        printf("+---------------+------+\n");
-        printf("|%-15s|%-6s|\n", "clave", "valor");
-        printf("+---------------+------+\n");
+        printf("+-------------------------+------+\n");
+        printf("|%-*s|%-6s|\n", TAM_PALABRA, "clave", "valor");
+        printf("+-------------------------+------+\n");
         return;
     }
 
-    printf("|%-15s|%6d|\n", signo->keyNom, signo->valCant);
+    printf("|%-*s|%6d|\n", TAM_PALABRA, signo->keyNom, signo->valCant);
     //printf("+---------------+------+\n");
     gr->item++;
 }
@@ -90,13 +90,13 @@ void printDiccPalabras(void *dataDicc, void *data)
     tGrupoRank* gr = (tGrupoRank*)data;
     if (dataDicc == NULL)
     {
-        printf("+---------------+------+\n");
-        printf("|%-15s|%-6s|\n", "clave", "valor");
-        printf("+---------------+------+\n");
+        printf("+-------------------------+------+\n");
+        printf("|%-*s|%-6s|\n", TAM_PALABRA, "clave", "valor");
+        printf("+-------------------------+------+\n");
         return;
     }
 
-    printf("|%-15s|%6d|\n", palabra->keyPal, palabra->valCant);
+    printf("|%-*s|%6d|\n", TAM_PALABRA, palabra->keyPal, palabra->valCant);
     //printf("+---------------+------+\n");
     //*total = *total + palabra->valCant;
     gr->item++;
@@ -110,9 +110,9 @@ void printDiccPodio(void* rank, void* clasificar)
 
     if (rActual == NULL)
     {
-        printf("+---------------+------+\n");
-        printf("|%-15s|%-6s|\n", "clave", "valor");
-        printf("+---------------+------+\n");
+        printf("+-------------------------+------+\n");
+        printf("|%-*s|%-6s|\n", TAM_PALABRA, "clave", "valor");
+        printf("+-------------------------+------+\n");
         return;
     }
 
@@ -121,8 +121,8 @@ void printDiccPodio(void* rank, void* clasificar)
         gr->pos = gr->item + 1;
     
     //printf("|%-15s|%6d|\n", r->valPal.keyPal, r->valPal.valCant);
-    if(gr->item < 5)
-        printf("|%-15s|%6d|\n", rActual->valPal.keyPal, gr->pos);
+    if(gr->item < gr->limite)
+        printf("|%-*s|%6d|\n", TAM_PALABRA, rActual->valPal.keyPal, gr->pos);
     //printf("+---------------+------+\n");
     gr->item++;
     gr->dataPrev = rActual; //paso la data al siguiente;
@@ -134,12 +134,12 @@ void printDiccPunto(void *dataDicc, void *data)
     if (dataDicc == NULL)
     {
         printf("+------+---------------+\n");
-        printf("|%-6s|%-15s|\n", "clave", "valor");
+        printf("|%-6s|%-*s|\n", "clave", TAM_PALABRA, "valor");
         printf("+------+---------------+\n");
         return;
     }
 
-    printf("|%-6d|%-15d|\n", punto->keyCant, punto->valPosi);
+    printf("|%-6d|%-6d|\n", punto->keyCant, punto->valPosi);
     //printf("+------+---------------+\n\n");
 }
 

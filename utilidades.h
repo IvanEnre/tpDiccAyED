@@ -51,6 +51,7 @@ typedef struct
 {
     int item;
     int pos;
+    int limite;
     void* dataPrev;
 }tGrupoRank;
 

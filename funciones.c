@@ -21,34 +21,33 @@ int solucion()
         switch (opcion)
         {
         case INPUT_NOM_ARCHIVO:
-            if(estado == EXITO)
-            {
-                vaciar_dic(&diccPalabras, 0);
-                vaciar_dic(&diccSignos, 0);
-                vaciar_dic(&diccPodio, 0);
-            }
             inArchivo(nombreArchivo);
             printf("\n##Archivo a procesar: %s\n\n", nombreArchivo);;
             break;
         case PROC_ARCHIVO:
             estado = procesarArchivo(nombreArchivo, &diccPalabras, &diccSignos);
+            if(estado == EXITO)
+            {
+                vaciar_dic(&diccPodio, 0);
+                generarPodio(&diccPalabras, &diccPodio, PODIO);
+            }
             mensajeEstado(estado, nombreArchivo);
             break;
         case INF_DATOS:
-            printf("\n-----DATOS A INFORMAR-----\n\n");
+            printf("\n---------DATOS A INFORMAR---------\n\n");
+            //printf("\'%s\'\n", nombreArchivo);
             if (estado != EXITO)
             {
                 printf("...\n\n");
                 break;
             }
-            printf("|Diccionario palabras. |\n");
+            printf("--Diccionario palabras.\n");
             generarInforme(&diccPalabras, printDiccPalabras);
-            printf("\n|Diccionario de signos.|\n");
+            printf("\n--Diccionario de signos.\n");
             generarInforme(&diccSignos, printDiccSignos);
-
-            generarPodio(&diccPalabras, &diccPodio, PODIO);
-            printf("\n|Diccionario de podios.|\n");
+            printf("\n--Diccionario de podios.\n");
             generarInforme(&diccPodio, printDiccPodio);
+            printf("-->\'%s\'\n", nombreArchivo);
             printf("\n\n");
             break;
         case SALIR:
@@ -168,11 +167,14 @@ int procesarArchivo(const char *nombArchTxt, tDiccionario *diccPals, tDiccionari
     char lineaBuffer[MAX_BUFF];
     char *ptrSaltoLinea;
     FILE *pfTxt;
-
+    
     pfTxt = fopen(nombArchTxt, "rt");
     if (pfTxt == NULL)
         return ERROR_APERTURA_ARCHIVO;
 
+    vaciar_dic(diccPals, 0);
+    vaciar_dic(diccSignos, 0);
+    
     while (fgets(lineaBuffer, MAX_BUFF, pfTxt))
     {
         ptrSaltoLinea = strchr(lineaBuffer, '\n');
@@ -196,14 +198,14 @@ void generarInforme(tDiccionario *dicc, Accion printDiccionario)
     clasificar.item = 0;
     clasificar.pos = 1;
     clasificar.dataPrev = NULL;
-
+    clasificar.limite = PODIO;
     printDiccionario(NULL, NULL);
     recorrer_dic(dicc, &clasificar, printDiccionario);
 
 
-    printf("+---------------+------+\n");
-    printf("|%15s|%6d|\n", "Total", clasificar.item);
-    printf("+---------------+------+\n");
+    printf("+-------------------------+------+\n");
+    printf("|%*s|%6d|\n", TAM_PALABRA, "Total", clasificar.item);
+    printf("+-------------------------+------+\n");
 }
 
 void generarPodio(tDiccionario *diccPals, tDiccionario *diccPodioPals, int podio)
