@@ -1,0 +1,26 @@
+Rubber,Supervisor,29.99
+Plexiglass,Surveyor,3.29
+Steel,Estimator,19.99
+Stone,Architect,2.99
+Aluminum,Architect,22.99
+Stone,Construction Worker,1.79
+Stone,Estimator,29.99
+Steel,Construction Worker,12.99
+Plexiglass,Subcontractor,19.99
+Brass,Architect,5.29
+Stone,Engineer,15.99
+Vinyl,Architect,39.99
+Stone,Construction Manager,2.99
+Wood,Project Manager,5.99
+Plexiglass,Construction Expeditor,12.99
+Plastic,Construction Worker,3.49
+Plexiglass,Surveyor,12.99
+Glass,Project Manager,3.29
+Plexiglass,Construction Manager,79.99
+Brass,Project Manager,24.99
+Glass,Project Manager,54.99
+Steel,Construction Manager,5.79
+Rubber,Project Manager,34.99
+Granite,Project Manager,5.49
+Aluminum,Project Manager,39.99
+
