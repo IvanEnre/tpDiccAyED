@@ -1,3 +1,7 @@
+/**
+ * 
+ * 
+ */
 #include "utilidades.h"
 
 void mensajeEstado(int estado, const char *inputNombreArchivo)

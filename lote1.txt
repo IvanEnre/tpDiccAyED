@@ -18,4 +18,3 @@
 ('Franco','Marketing',7456.00),
 ('Cesar','Marketing',2555.00),
 ('Patricio','IT',4000.00);
-

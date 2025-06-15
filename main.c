@@ -1,3 +1,7 @@
+/**
+ * 
+ * 
+ */
 #include "funciones.h" //.h -> .c
 
 int main()

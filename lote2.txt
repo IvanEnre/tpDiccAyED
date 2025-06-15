@@ -23,4 +23,3 @@ Steel,Construction Manager,5.79
 Rubber,Project Manager,34.99
 Granite,Project Manager,5.49
 Aluminum,Project Manager,39.99
-

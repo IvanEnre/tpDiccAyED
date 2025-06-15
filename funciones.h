@@ -1,8 +1,12 @@
+/**
+ * 
+ * 
+ */
 #ifndef FUNCIONES_H
 #define FUNCIONES_H
 
-#include "utilidades.h" //.h -> .c
-#include "diccionario.h" //.h -> .c
+#include "utilidades.h"
+#include "diccionario.h"
 
 #define OPC_VALIDAS "IPDS"
 #define INPUT_NOM_ARCHIVO 'I'

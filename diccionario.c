@@ -1,3 +1,7 @@
+/**
+ * 
+ * 
+ */
 #include "diccionario.h"
 
 int crear_dic(tDiccionario* dicc, size_t cantMaxDicc, FunHash funcHashing)
